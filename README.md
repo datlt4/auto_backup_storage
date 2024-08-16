@@ -13,38 +13,14 @@ pre-commit install
     python3 -c "\
     from auto_backup_storage import process_pair_in_pool;\
     source_destination_pairs = [\
-        (\
-            '/mnt/C67881AE78819DB5/PIXAR/Vizgard/',\
-            '/mnt/90848C74848C5F1A/Vizgard/',\
-        ),\
-        (\
-            '/mnt/C67881AE78819DB5/DISNEY/',\
-            '/mnt/404A81F44A81E74E/DISNEY/',\
-        ),\
-        (\
-            '/mnt/C67881AE78819DB5/Downloads-Windows/',\
-            '/mnt/404A81F44A81E74E/Downloads-Windows/',\
-        ),\
-        (\
-            '/mnt/00AE2C6B5AC8D335/',\
-            '/mnt/404A81F44A81E74E/365GB-SSD/',\
-        ),\
-        (\
-            '/mnt/C67881AE78819DB5/PIXAR/',\
-            '/mnt/404A81F44A81E74E/PIXAR/',\
-        ),\
-        (\
-            '/home/emoi/Downloads/',\
-            '/mnt/404A81F44A81E74E/Downloads-Ubuntu/',\
-        ),\
-        (\
-            '/mnt/90848C74848C5F1A/4k/',\
-            '/mnt/404A81F44A81E74E/1TB-HDD/4K-videos',\
-        ),\
-        (\
-            '/mnt/90848C74848C5F1A/8k/',\
-            '/mnt/404A81F44A81E74E/1TB-HDD/8K-videos',\
-        ),\
+        ('/mnt/C67881AE78819DB5/PIXAR/Vizgard/', '/mnt/90848C74848C5F1A/Vizgard/',),\
+        ('/mnt/C67881AE78819DB5/DISNEY/', '/mnt/404A81F44A81E74E/DISNEY/',),\
+        ('/mnt/C67881AE78819DB5/Downloads-Windows/', '/mnt/404A81F44A81E74E/Downloads-Windows/',),\
+        ('/mnt/00AE2C6B5AC8D335/', '/mnt/404A81F44A81E74E/365GB-SSD/',),\
+        ('/mnt/C67881AE78819DB5/PIXAR/', '/mnt/404A81F44A81E74E/PIXAR/',),\
+        ('/home/emoi/Downloads/', '/mnt/404A81F44A81E74E/Downloads-Ubuntu/',),\
+        ('/mnt/90848C74848C5F1A/4k/', '/mnt/404A81F44A81E74E/1TB-HDD/4K-videos',),\
+        ('/mnt/90848C74848C5F1A/8k/', '/mnt/404A81F44A81E74E/1TB-HDD/8K-videos',),\
     ];\
     process_pair_in_pool(source_destination_pairs);"
     ```

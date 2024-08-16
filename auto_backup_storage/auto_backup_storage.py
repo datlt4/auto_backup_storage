@@ -11,11 +11,14 @@ import multiprocessing
 import socket
 from queue import Queue
 
-# Configure logging settings
+# Set up logging configuration
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.INFO,  # This sets the minimum level to INFO; WARNING and ERROR are included by default
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler()],
+    handlers=[
+        logging.StreamHandler(),  # Logs to the console
+        logging.FileHandler("app.log"),  # Logs to a file named 'app.log'
+    ],
 )
 
 # Constants for the application
@@ -39,11 +42,12 @@ def is_binary(file_path: str):
     Returns:
         bool: True if the file is binary, otherwise False.
     """
-    with open(file_path, "rb") as file:
-        for byte in file.read(1024):  # Read first 1024 bytes
-            if byte > 127:  # Check if any byte is non-ASCII
-                return True
-    return False
+    # with open(file_path, "rb") as file:
+    #     for byte in file.read(1024):  # Read first 1024 bytes
+    #         if byte > 127:  # Check if any byte is non-ASCII
+    #             return True
+    # return False
+    return True
 
 
 def calculate_hash(file_path: str):
@@ -190,6 +194,8 @@ def process_file(file_task_queue: Queue, cpu_threshold: float = LIMIT_MAX_CPU_US
                 copy_file(src_file, dst_file)
         except FileNotFoundError:
             logging.error(f"File not found during processing: {src_file}")
+        except Exception as e:
+            logging.error(f"Error during processing {src_file}: {e}")
 
         file_task_queue.task_done()
         logging.info(f"Processed file: {src_file}, CPU usage {curren_cpu_usage}%")
@@ -277,6 +283,8 @@ def sync_directories(
                 logging.error(
                     f"File not found during removal: {os.path.join(root, dst_file)}"
                 )
+            except Exception as e:
+                logging.error(f"Error during processing {src_file}: {e}")
 
         for dst_folder in dirs:
             rel_path = os.path.relpath(os.path.join(root, dst_folder), dst_dir)
@@ -294,6 +302,8 @@ def sync_directories(
                 logging.error(
                     f"Directory not found during removal: {os.path.join(root, dst_folder)}"
                 )
+            except Exception as e:
+                logging.error(f"Error during processing {src_folder}: {e}")
 
     # Start file and directory processing threads
     for _ in range(multiprocessing.cpu_count()):
@@ -368,6 +378,10 @@ def acquire_socket_lock():
             sys.exit(1)
         else:
             raise
+    except Exception as e:
+        logging.error(f"Socket lock is already acquired by another instance. Exiting.")
+    finally:
+        s.close()  # Close the socket regardless of whether an exception occurred or not
 
 
 def process_pair_in_pool(source_destination_pairs: list):
