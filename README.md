@@ -25,6 +25,15 @@ pre-commit install
     process_pair_in_pool(source_destination_pairs);"
     ```
 
+```bash
+python3 -c "\
+from auto_backup_storage import process_pair_in_pool;\
+source_destination_pairs = [\
+    ('/home/emoi/Downloads/Boost.Asio.Cpp.Network.Programming.Cookbook/', '/mnt/404A81F44A81E74E/Boost.Asio.Cpp.Network.Programming.Cookbook/',),\
+];\
+process_pair_in_pool(source_destination_pairs);"
+```
+
 
 2. Restore
 
@@ -88,4 +97,12 @@ sudo systemctl stop auto-backup-storage.service
 sudo systemctl enable auto-backup-storage.service
 sudo systemctl is-enabled auto-backup-storage.service
 sudo systemctl disable auto-backup-storage.service
+```
+
+# Executable file
+
+From v0.1.6 I can backup with executable file
+
+```bash
+auto_backup_storage /path/to/source /path/to/destination
 ```

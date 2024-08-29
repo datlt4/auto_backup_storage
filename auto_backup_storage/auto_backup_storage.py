@@ -27,7 +27,7 @@ NUM_RANDOM_BYTES = ONE_MEGABYTE  # Number of random bytes to compare in large fi
 LIMIT_IGNORE_CALCULATE_LARGE_FILE = (
     100 * ONE_MEGABYTE
 )  # Threshold to ignore hash calculation for large files
-LIMIT_MAX_CPU_USAGE = 80  # Maximum CPU usage percentage before pausing operations
+LIMIT_MAX_CPU_USAGE = 95  # Maximum CPU usage percentage before pausing operations
 PSUTIL_ITERVAL = 0.1  # Interval for checking CPU usage
 SOCKET_PORT = 65432  # Port number for socket lock
 
@@ -159,7 +159,7 @@ def check_cpu_usage(cpu_threshold: float = LIMIT_MAX_CPU_USAGE):
     curren_cpu_usage = psutil.cpu_percent(PSUTIL_ITERVAL)
     if curren_cpu_usage > cpu_threshold:
         logging.warning(f"High CPU usage ({curren_cpu_usage}%), pausing sync")
-        time.sleep(3)  # Pause for 3 seconds if CPU usage is too high
+        time.sleep(1)  # Pause for 1 seconds if CPU usage is too high
 
 
 def process_file(file_task_queue: Queue, cpu_threshold: float = LIMIT_MAX_CPU_USAGE):
@@ -181,7 +181,7 @@ def process_file(file_task_queue: Queue, cpu_threshold: float = LIMIT_MAX_CPU_US
             curren_cpu_usage > cpu_threshold
         ):  # Check and wait if CPU usage is too high
             logging.warning(f"High CPU usage ({curren_cpu_usage}%), pausing sync")
-            time.sleep(3)
+            time.sleep(1)
             curren_cpu_usage = psutil.cpu_percent(PSUTIL_ITERVAL)
 
         try:
@@ -222,7 +222,7 @@ def process_directory(
             curren_cpu_usage > cpu_threshold
         ):  # Check and wait if CPU usage is too high
             logging.warning(f"High CPU usage ({curren_cpu_usage}%), pausing sync")
-            time.sleep(3)
+            time.sleep(1)
             curren_cpu_usage = psutil.cpu_percent(PSUTIL_ITERVAL)
 
         if not os.path.exists(dst_folder):  # Create the directory if it doesn't exist
@@ -433,20 +433,8 @@ if __name__ == "__main__":
 
     source_destination_pairs = [
         (
-            "/home/emoi/Downloads/",
-            "/mnt/404A81F44A81E74E/Linux/Downloads/",
-        ),
-        (
-            "/mnt/C67881AE78819DB5/DISNEY/",
-            "/mnt/404A81F44A81E74E/DISNEY/",
-        ),
-        (
-            "/mnt/C67881AE78819DB5/Downloads-Windows/",
-            "/mnt/404A81F44A81E74E/Downloads-Windows/",
-        ),
-        (
-            "/mnt/00AE2C6B5AC8D335/",
-            "/mnt/404A81F44A81E74E/365GB-SSD/",
+            "/home/emoi/Downloads/Boost.Asio.Cpp.Network.Programming.Cookbook/",
+            "/mnt/404A81F44A81E74E/Boost.Asio.Cpp.Network.Programming.Cookbook/",
         ),
         # Add more pairs as needed
     ]
