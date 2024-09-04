@@ -1,8 +1,18 @@
 from setuptools import setup, find_packages
+import os
+
+# Get the path to the `package_version.txt` file
+version_file = os.path.join(
+    os.path.dirname(__file__), "auto_backup_storage", "package_version.txt"
+)
+
+# Read the version from the VERSION file
+with open(version_file) as f:
+    version = f.read().strip()
 
 setup(
     name="auto_backup_storage",
-    version="0.1.6",
+    version=version,
     description="A Python script for backing up and synchronizing data between SSD and HDD with CPU usage monitoring.",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",

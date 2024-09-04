@@ -22,11 +22,15 @@ logging.basicConfig(
 )
 
 # Constants for the application
-ONE_MEGABYTE = 1024 * 1024  # Size of one megabyte in bytes
-NUM_RANDOM_BYTES = ONE_MEGABYTE  # Number of random bytes to compare in large files
+ONE_KILOBYTE = 1024  # Size of one kilobyte in bytes
+ONE_MEGABYTE = 1024 * ONE_KILOBYTE  # Size of one megabyte in bytes
+ONE_GIGABYTE = 1024 * ONE_MEGABYTE  # Size of one gigabyte in bytes
+ONE_TERABYTE = 1024 * ONE_GIGABYTE  # Size of one terabyte in bytes
+ONE_PETARABYTE = 1024 * ONE_TERABYTE  # Size of one terabyte in bytes
+NUM_RANDOM_BYTES = 50 * ONE_MEGABYTE  # Number of random bytes to compare in large files
 LIMIT_IGNORE_CALCULATE_LARGE_FILE = (
-    100 * ONE_MEGABYTE
-)  # Threshold to ignore hash calculation for large files
+    ONE_GIGABYTE  # Threshold to ignore hash calculation for large files
+)
 LIMIT_MAX_CPU_USAGE = 95  # Maximum CPU usage percentage before pausing operations
 PSUTIL_ITERVAL = 0.1  # Interval for checking CPU usage
 SOCKET_PORT = 65432  # Port number for socket lock
@@ -85,19 +89,19 @@ def compare_large_files(src: str, dst: str, num_bytes: int = NUM_RANDOM_BYTES):
         return False
 
     src_size = os.path.getsize(src)
-    if src_size < num_bytes:
-        return False
-
-    positions = random.sample(
-        range(src_size - num_bytes), 10
-    )  # Choose 10 random positions
+    positions = set()
     with open(src, "rb") as sf, open(dst, "rb") as df:
-        for pos in positions:
-            sf.seek(pos)  # Seek to the random position in source
-            df.seek(pos)  # Seek to the random position in destination
-            if sf.read(num_bytes) != df.read(num_bytes):  # Compare the bytes
-                return False
-
+        random.randint(0, src_size)
+        while True:
+            pos = random.randint(0, src_size - 1)
+            if pos in positions:
+                continue
+            else:
+                sf.seek(pos)  # Seek to the random position in source
+                df.seek(pos)  # Seek to the random position in destination
+                if sf.read(num_bytes) != df.read(num_bytes):  # Compare the bytes
+                    return False
+                positions.add(pos)
     return True
 
 
@@ -122,7 +126,8 @@ def files_are_identical(src: str, dst: str):
         return False
 
     if is_binary(src) and src_size > LIMIT_IGNORE_CALCULATE_LARGE_FILE:
-        return compare_large_files(src, dst)
+        # return compare_large_files(src, dst)
+        return calculate_hash(src) == calculate_hash(dst)
     else:
         return calculate_hash(src) == calculate_hash(dst)
 
@@ -140,13 +145,17 @@ def copy_file(src: str, dst: str):
         shutil.copy2(src, dst)  # Copy file with metadata
     except FileNotFoundError:
         logging.error(f"File not found during copy: {src}")
+    except PermissionError:
+        logging.error(f"Permission error while copying file {src} to {dst}.")
     except Exception as e:
         logging.error(f"Error copying file {src} to {dst}: {e}")
-        with open(src, "rb") as sf, open(dst, "wb") as df:
-            for chunk in iter(
-                lambda: sf.read(4096), b""
-            ):  # Manually copy in chunks if shutil fails
-                df.write(chunk)
+        try:
+            # Attempt to manually copy in chunks if shutil fails
+            with open(src, "rb") as sf, open(dst, "wb") as df:
+                for chunk in iter(lambda: sf.read(4096), b""):
+                    df.write(chunk)
+        except Exception as inner_e:
+            logging.error(f"Error manually copying file {src} to {dst}: {inner_e}")
 
 
 def check_cpu_usage(cpu_threshold: float = LIMIT_MAX_CPU_USAGE):
@@ -192,6 +201,10 @@ def process_file(file_task_queue: Queue, cpu_threshold: float = LIMIT_MAX_CPU_US
                     f"File {src_file} is different from {dst_file}, copying..."
                 )
                 copy_file(src_file, dst_file)
+            else:
+                logging.info(
+                    f"File {src_file} is identical to {dst_file}, no copy needed."
+                )
         except FileNotFoundError:
             logging.error(f"File not found during processing: {src_file}")
         except Exception as e:
@@ -433,8 +446,8 @@ if __name__ == "__main__":
 
     source_destination_pairs = [
         (
-            "/home/emoi/Downloads/Boost.Asio.Cpp.Network.Programming.Cookbook/",
-            "/mnt/404A81F44A81E74E/Boost.Asio.Cpp.Network.Programming.Cookbook/",
+            "/mnt/C67881AE78819DB5/",
+            "/mnt/404A81F44A81E74E/1TB-SSD/",
         ),
         # Add more pairs as needed
     ]
