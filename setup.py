@@ -25,6 +25,9 @@ setup(
             "auto_backup_storage=auto_backup_storage.cli:backup",
         ],
     },
+    package_data={
+        "auto_backup_storage": ["package_version.txt"],
+    },
     install_requires=["psutil"],
     classifiers=[
         "Programming Language :: Python :: 3",

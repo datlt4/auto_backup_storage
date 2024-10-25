@@ -106,3 +106,17 @@ From v0.1.6 I can backup with executable file
 ```bash
 auto_backup_storage /path/to/source /path/to/destination
 ```
+
+# Docker environment
+
+```bash
+docker run -it --rm -v $(pwd):/auto_backup_storage python:3.12.7-alpine /bin/sh
+
+apk update
+cd /auto_backup_storage
+python3 -m pip install setuptools
+python3 setup.py sdist bdist_wheel
+apk add twine
+twine upload dist/*
+TWINE_USERNAME="__token__" TWINE_PASSWORD="pypi-....................................................." twine upload --non-interactive dist/*
+```
