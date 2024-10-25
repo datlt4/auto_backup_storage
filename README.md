@@ -117,6 +117,5 @@ cd /auto_backup_storage
 python3 -m pip install setuptools
 python3 setup.py sdist bdist_wheel
 apk add twine
-twine upload dist/*
 TWINE_USERNAME="__token__" TWINE_PASSWORD="pypi-....................................................." twine upload --non-interactive dist/*
 ```

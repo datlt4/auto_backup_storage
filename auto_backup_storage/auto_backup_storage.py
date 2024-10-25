@@ -9,7 +9,7 @@ import threading
 import logging
 import multiprocessing
 import socket
-from queue import Queue
+from queue import Queue, Empty
 
 # Set up logging configuration
 logging.basicConfig(
@@ -180,7 +180,11 @@ def process_file(file_task_queue: Queue, cpu_threshold: float = LIMIT_MAX_CPU_US
         cpu_threshold (float): CPU usage threshold percentage.
     """
     while True:
-        src_file, dst_file = file_task_queue.get()
+        try:
+            src_file, dst_file = file_task_queue.get(block=True, timeout=1)
+        except Empty:
+            break
+
         if not src_file:  # If the task is empty, break the loop
             file_task_queue.task_done()
             break
@@ -225,7 +229,11 @@ def process_directory(
         cpu_threshold (float): CPU usage threshold percentage.
     """
     while True:
-        dst_folder = dir_task_queue.get()
+        try:
+            dst_folder = dir_task_queue.get(block=True, timeout=1)
+        except Empty:
+            break
+
         if not dst_folder:  # If the task is empty, break the loop
             dir_task_queue.task_done()
             break
@@ -259,8 +267,8 @@ def sync_directories(
         dst_dir (str): Destination directory path.
         cpu_threshold (float): CPU usage threshold percentage.
     """
-    file_task_queue = Queue()
-    dir_task_queue = Queue()
+    file_task_queue = Queue(maxsize=1000)
+    dir_task_queue = Queue(maxsize=1000)
 
     # Process source files and directories
     for root, dirs, files in os.walk(src_dir):
