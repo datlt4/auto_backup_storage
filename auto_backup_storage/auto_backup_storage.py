@@ -186,7 +186,6 @@ def process_file(file_task_queue: Queue, cpu_threshold: float = LIMIT_MAX_CPU_US
             break
 
         if not src_file:  # If the task is empty, break the loop
-            file_task_queue.task_done()
             break
 
         curren_cpu_usage = psutil.cpu_percent(PSUTIL_ITERVAL)
@@ -214,7 +213,6 @@ def process_file(file_task_queue: Queue, cpu_threshold: float = LIMIT_MAX_CPU_US
         except Exception as e:
             logging.error(f"Error during processing {src_file}: {e}")
 
-        file_task_queue.task_done()
         logging.info(f"Processed file: {src_file}, CPU usage {curren_cpu_usage}%")
 
 
@@ -235,7 +233,6 @@ def process_directory(
             break
 
         if not dst_folder:  # If the task is empty, break the loop
-            dir_task_queue.task_done()
             break
 
         curren_cpu_usage = psutil.cpu_percent(PSUTIL_ITERVAL)
@@ -250,7 +247,6 @@ def process_directory(
             os.makedirs(dst_folder)
             logging.info(f"Created directory {dst_folder}")
 
-        dir_task_queue.task_done()
         logging.info(
             f"Processed directory: {dst_folder}, CPU usage {curren_cpu_usage}%"
         )
@@ -267,8 +263,8 @@ def sync_directories(
         dst_dir (str): Destination directory path.
         cpu_threshold (float): CPU usage threshold percentage.
     """
-    file_task_queue = Queue(maxsize=1000)
-    dir_task_queue = Queue(maxsize=1000)
+    file_task_queue = Queue()
+    dir_task_queue = Queue()
 
     # Process source files and directories
     for root, dirs, files in os.walk(src_dir):
@@ -343,16 +339,9 @@ def sync_directories(
         t_dir.start()
         threads.extend([t_file, t_dir])
 
-    # Wait for all tasks to be completed
-    file_task_queue.join()
-    dir_task_queue.join()
-
+    # Wait for all threads to finish
     for t in threads:
-        file_task_queue.put(None)  # Signal threads to stop
-        dir_task_queue.put(None)
-
-    for t in threads:
-        t.join()  # Wait for all threads to finish
+        t.join()
 
     logging.info("Synchronization complete.")
 
